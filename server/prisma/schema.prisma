@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -60,7 +60,7 @@ model InboundEmail {
   createdAt                DateTime  @default(now())
   updatedAt                DateTime  @updatedAt
   deal                     Deal?     @relation("DealInboundEmail")
-  brand                    Brand?    @relation(fields: [brandId], references: [id])
+  brand                    Brand?    @relation(fields: [brandId], references: [id], onDelete: SetNull)
   creator                  Creator   @relation(fields: [creatorId], references: [id])
 
   @@index([creatorId, receivedAt])
@@ -84,8 +84,8 @@ model Deal {
   metadata         String?
   createdAt        DateTime          @default(now())
   updatedAt        DateTime          @updatedAt
-  inboundEmail     InboundEmail?     @relation("DealInboundEmail", fields: [inboundEmailId], references: [id])
-  brand            Brand?            @relation(fields: [brandId], references: [id])
+  inboundEmail     InboundEmail?     @relation("DealInboundEmail", fields: [inboundEmailId], references: [id], onDelete: SetNull)
+  brand            Brand?            @relation(fields: [brandId], references: [id], onDelete: SetNull)
   creator          Creator           @relation(fields: [creatorId], references: [id])
   outboundMessages OutboundMessage[]
 
@@ -108,7 +108,7 @@ model OutboundMessage {
   deliveredAt       DateTime?
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
-  deal              Deal?     @relation(fields: [dealId], references: [id])
+  deal              Deal?     @relation(fields: [dealId], references: [id], onDelete: SetNull)
   creator           Creator   @relation(fields: [creatorId], references: [id])
 
   @@index([creatorId, createdAt])

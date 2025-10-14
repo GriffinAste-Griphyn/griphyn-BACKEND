@@ -4,23 +4,24 @@ This folder contains the in-progress backend for the AI talent agent. The skelet
 
 #### 1. Install dependencies
 
-```bash
-cd server
-pnpm install
-```
-
-> **Note:** You can also use `npm` or `yarn`, but `pnpm` keeps parity with the existing frontend tooling.
-
-#### 2. Configure environment
-
 Copy the example file and populate credentials:
 
 ```bash
 cp .env.example .env
 ```
 
+Then install dependencies with your preferred package manager:
+
+```bash
+npm install
+```
+
+> The project is configured to deploy on Render using `npm`.
+
+#### 2. Configure environment
+
 Required before the server will boot:
-- `DATABASE_URL` – Defaults to `file:./dev.db` (SQLite). Adjust if you prefer Postgres.
+- `DATABASE_URL` – PostgreSQL connection string (e.g. Render’s External Database URL).
 
 Optional but recommended:
 - `SESSION_SECRET` – random string used to sign OAuth state tokens.
@@ -33,21 +34,19 @@ Optional but recommended:
 
 #### 3. Initialize the database
 
-```bash
-pnpm prisma:generate
-pnpm prisma:migrate --name init
-```
-
-Optionally seed foundational data:
+The schema now targets PostgreSQL. Run these once against your database:
 
 ```bash
-pnpm prisma:seed
+npx prisma migrate deploy
+npx prisma db seed
 ```
+
+Locally you can also connect to a Postgres instance (Docker, Render, Supabase, etc.) by updating `DATABASE_URL` and re-running `npx prisma migrate deploy`.
 
 #### 4. Run the API
 
 ```bash
-pnpm dev
+npm run dev
 ```
 
 The server boots on `http://localhost:4000` by default. A `GET /healthz` endpoint and `/api` namespace are already mounted.
@@ -66,7 +65,7 @@ The server boots on `http://localhost:4000` by default. A `GET /healthz` endpoin
 
 1. **Seed a creator** – run `pnpm prisma:seed` (or `pnpm prisma:studio` for manual entry) to ensure at least one creator exists; note the resulting `creatorId`.
 2. **Connect Gmail once** – request `/api/auth/google?creatorId=<ID>&redirectUri=http://localhost:3000/oauth-callback`, open the returned `authorizationUrl`, and approve access with your inbox.
-3. **Run the poller** – execute `pnpm worker:gmail` to process newly arrived Gmail messages (tracked via Gmail history), classify them, store an `InboundEmail`, and text the creator with a YES/NO prompt (requires Twilio credentials + creator phone).
+3. **Run the poller** – execute `npm run worker:gmail` to process newly arrived Gmail messages (tracked via Gmail history), classify them, store an `InboundEmail`, and text the creator with a YES/NO prompt (requires Twilio credentials + creator phone).
 4. **Creator replies** – on a `YES` reply the Twilio webhook writes a `Deal` linked to the email; `NO` marks the message as declined.
 5. **Repeat on demand** – run `pnpm worker:gmail` whenever you want to ingest the next unread email; later you can wrap it in a cron job or queue worker for automation.
 

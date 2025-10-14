@@ -8,6 +8,8 @@
 /out/
 /server/dist
 /server/node_modules
+server/dev.db
+server/prisma/dev.db*
 
 # production
 /build

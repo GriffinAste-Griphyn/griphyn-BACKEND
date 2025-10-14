@@ -35,7 +35,9 @@ The in-app assistant calls OpenAI through `/api/assistant`. To enable it locally
 
 ```bash
 OPENAI_API_KEY=sk-your-key-here
-# Optional: point assistant at your backend API (defaults to http://localhost:4000)
+# Optional: point assistant at your backend API.
+# Use http://localhost:4000 when running the API locally,
+# or https://griphyn-backend.onrender.com for the hosted Render instance.
 DEALS_API_BASE_URL=http://localhost:4000
 ```
 
