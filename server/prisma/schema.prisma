@@ -1,0 +1,132 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Creator {
+  id               String            @id @default(uuid())
+  displayName      String
+  email            String            @unique
+  phoneNumber      String?
+  timezone         String?
+  status           String            @default("ACTIVE")
+  googleUserId     String?           @unique
+  gmailAddress     String?
+  preferences      String?
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  deals            Deal[]
+  gmailCredential  GmailCredential?
+  inboundEmails    InboundEmail[]
+  outboundMessages OutboundMessage[]
+}
+
+model Brand {
+  id            String         @id @default(uuid())
+  name          String
+  domain        String?
+  contactEmail  String?
+  website       String?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  deals         Deal[]
+  inboundEmails InboundEmail[]
+
+  @@unique([name, domain])
+}
+
+model InboundEmail {
+  id                       String    @id @default(uuid())
+  gmailMessageId           String    @unique
+  gmailThreadId            String?
+  subject                  String?
+  snippet                  String?
+  fromAddress              String
+  toAddress                String?
+  ccAddresses              String?
+  bccAddresses             String?
+  receivedAt               DateTime
+  rawPayload               String?
+  parsedData               String?
+  classification           String    @default("UNKNOWN")
+  classificationConfidence Float?
+  processedAt              DateTime?
+  creatorId                String
+  brandId                  String?
+  createdAt                DateTime  @default(now())
+  updatedAt                DateTime  @updatedAt
+  deal                     Deal?     @relation("DealInboundEmail")
+  brand                    Brand?    @relation(fields: [brandId], references: [id])
+  creator                  Creator   @relation(fields: [creatorId], references: [id])
+
+  @@index([creatorId, receivedAt])
+  @@index([brandId])
+}
+
+model Deal {
+  id               String            @id @default(uuid())
+  creatorId        String
+  brandId          String?
+  inboundEmailId   String?           @unique
+  title            String?
+  summary          String?
+  status           String            @default("PENDING_CREATOR")
+  source           String            @default("EMAIL")
+  estimatedValue   Float?
+  currencyCode     String?           @default("USD")
+  dueDate          DateTime?
+  aiConfidence     Float?
+  aiSummary        String?
+  metadata         String?
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  inboundEmail     InboundEmail?     @relation("DealInboundEmail", fields: [inboundEmailId], references: [id])
+  brand            Brand?            @relation(fields: [brandId], references: [id])
+  creator          Creator           @relation(fields: [creatorId], references: [id])
+  outboundMessages OutboundMessage[]
+
+  @@index([status])
+  @@index([creatorId, updatedAt])
+}
+
+model OutboundMessage {
+  id                String    @id @default(uuid())
+  creatorId         String
+  dealId            String?
+  channel           String
+  to                String
+  body              String
+  payload           String?
+  providerMessageId String?
+  status            String    @default("PENDING")
+  error             String?
+  sentAt            DateTime?
+  deliveredAt       DateTime?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  deal              Deal?     @relation(fields: [dealId], references: [id])
+  creator           Creator   @relation(fields: [creatorId], references: [id])
+
+  @@index([creatorId, createdAt])
+  @@index([dealId])
+}
+
+model GmailCredential {
+  id           String    @id @default(uuid())
+  creatorId    String    @unique
+  googleUserId String
+  email        String
+  accessToken  String?
+  refreshToken String
+  scope        String?
+  tokenType    String?
+  expiryDate   DateTime?
+  metadata     String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  creator      Creator   @relation(fields: [creatorId], references: [id])
+}
