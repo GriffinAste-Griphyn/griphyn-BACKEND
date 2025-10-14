@@ -126,47 +126,49 @@ export class AiService {
             ]
           }
         ],
-        response_format: {
-          type: 'json_schema',
-          json_schema: {
-            name: 'DealInsight',
-            schema: {
-              type: 'object',
-              additionalProperties: false,
-              required: ['summary', 'classification', 'confidence', 'suggestedNextSteps'],
-              properties: {
-                summary: {
-                  type: 'string',
-                  description:
-                    'A concise summary of the opportunity and key points relevant to the creator.'
-                },
-                classification: {
-                  type: 'string',
-                  enum: ['deal', 'non_deal', 'uncertain'],
-                  description:
-                    'Whether the email represents a deal opportunity, a non-deal message, or is uncertain.'
-                },
-                confidence: {
-                  type: 'number',
-                  minimum: 0,
-                  maximum: 1,
-                  description: 'Confidence score for the classification between 0 and 1.'
-                },
-                recommendedRateRange: {
-                  type: 'object',
-                  additionalProperties: false,
-                  required: ['low', 'high', 'currency'],
-                  properties: {
-                    low: { type: 'number' },
-                    high: { type: 'number' },
-                    currency: { type: 'string' }
-                  }
-                },
-                suggestedNextSteps: {
-                  type: 'array',
-                  minItems: 1,
-                  items: {
-                    type: 'string'
+        text: {
+          format: {
+            type: 'json_schema',
+            json_schema: {
+              name: 'DealInsight',
+              schema: {
+                type: 'object',
+                additionalProperties: false,
+                required: ['summary', 'classification', 'confidence', 'suggestedNextSteps'],
+                properties: {
+                  summary: {
+                    type: 'string',
+                    description:
+                      'A concise summary of the opportunity and key points relevant to the creator.'
+                  },
+                  classification: {
+                    type: 'string',
+                    enum: ['deal', 'non_deal', 'uncertain'],
+                    description:
+                      'Whether the email represents a deal opportunity, a non-deal message, or is uncertain.'
+                  },
+                  confidence: {
+                    type: 'number',
+                    minimum: 0,
+                    maximum: 1,
+                    description: 'Confidence score for the classification between 0 and 1.'
+                  },
+                  recommendedRateRange: {
+                    type: 'object',
+                    additionalProperties: false,
+                    required: ['low', 'high', 'currency'],
+                    properties: {
+                      low: { type: 'number' },
+                      high: { type: 'number' },
+                      currency: { type: 'string' }
+                    }
+                  },
+                  suggestedNextSteps: {
+                    type: 'array',
+                    minItems: 1,
+                    items: {
+                      type: 'string'
+                    }
                   }
                 }
               }
